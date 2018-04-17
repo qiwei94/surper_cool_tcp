@@ -34,6 +34,87 @@ int conClientCount=0;
 pthread_t Arr_Thread_Receive_Client[10];
 int thread_receive_client_count=0;
 
+
+void * fun_therad_accept_handler(void *socketlisten){
+	while(1){
+		int sockaddr_in_size=sizeof(struct sockaddr_in);
+		struct sockaddr_in client_addr;
+		int _socketListen=*((int *)socketlisten);
+		int socketCon=accept(_socketListen,(struct sockaddr*)(&client_addr),(socklen_t *)(&sockaddr_in_size));
+		if(socketCon<0){
+			printf("connect fail\n");
+		}else{
+			printf("connect sucess ip: %s:%d\n",inet_ntoa(client_addr.sin_addr),client_addr.sin_port);
+		}
+		printf("the connect socket is :%d\n",socketCon);
+
+		//open a new communication thread , and communicate with the client
+		_my_socket_info socketinfo;
+		socketinfo.socketCon=socketCon;
+		socketinfo.ipaddr=inet_ntoa(client_addr.sin_addr);
+		socketinfo.port=client_addr.sin_port;
+		Arr_Thread_Receive_Client[conClientCount]=socketinfo;
+		conClientCount++;
+		printf("now get  client conneted\n");
+
+		pthread_t thread_receive=0;
+		pthread_create(&thread_receive,NULL,fun_thread_receive_handler,&socketinfo);
+		Arr_Thread_Receive_Client[thread_receive_client_count]=thread_receive;
+		thread_receive_client_count++;
+
+		//make the thread sleep for 0.5s
+		sleep(0.5);
+	}
+	char *s="exit the thread safely";
+	pthread_exit(s);
+}
+
+
+void *fun_thread_receive_handler(void *socketinfo){
+	char buffer[30];
+	int buffer_length
+	_my_socket_info _socketInfo=*((_my_socket_info*)socketinfo);
+	while(1){
+		//buffer to be zero
+		bzero(&buffer,sizeof(buffer));
+
+		buffer_length=read(_socketInfo,socketCon,buffer,30);
+		if(buffer_length==0){
+			printf("%s:%d client closed\n", _socketInfo.ipaddr,_socketInfo.port);
+			conClientCount--;
+			break;
+		}else if (buffer_length<0)
+		{
+			printf("receive client data fail \n");
+			break;
+		}
+		buffer[buffer_length]='\0';
+		printf("%s:%d saied that: %s\n", _socketInfo.ipaddr,_socketInfo.port,buffer);
+		sleep(0.2);
+	}
+	printf("receive data thread stop\n");
+	return NULL;
+}
+
+
+int check_thread_is_killed(pthread_t thr){
+	int res=1;
+	int res_kill = pthread_kill(thr,0);
+	if(res_kill == 0){
+		res=0;
+	}
+	return res;
+}
+
+
+
+
+
+
+
+
+
+
 int main(int argc, char const *argv[])
 {
 	printf("socket begin\n");
@@ -109,9 +190,17 @@ int main(int argc, char const *argv[])
 				}
 			}
 		}
-
+		sleep(0,5);
 	}
 
+	printf("wait for thread quit\n");
+	char* message;
+	pthread_join(thread_accept,(void *)&message);
+	printf("%s\n",message);
 
 	return 0;
 }
+
+
+
+
