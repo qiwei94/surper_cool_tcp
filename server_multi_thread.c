@@ -79,9 +79,9 @@ void * fun_therad_accept_handler(void *socketlisten){
 		socketinfo.port=client_addr.sin_port;
 
 		// put it into the receive client vector
-		Arr_Thread_Receive_Client[conClientCount]=socketinfo;
+		arr_socket[conClientCount]=socketinfo;
 		conClientCount++;
-		printf("now get  client conneted\n");
+		printf("now get %d client conneted\n",conClientCount);
 
 		//create a new thread and use it to run receive data handler
 		pthread_t thread_receive=0;
@@ -103,7 +103,7 @@ void * fun_therad_accept_handler(void *socketlisten){
 
 void *fun_thread_receive_handler(void *socketinfo){
 	char buffer[30];
-	int buffer_length
+	int buffer_length;
 
 	//use the input to init the socket_info
 	_my_socket_info _socketInfo=*((_my_socket_info*)socketinfo);
@@ -113,7 +113,7 @@ void *fun_thread_receive_handler(void *socketinfo){
 
 
 		//read the buffer content from the buffer with the length of 30
-		buffer_length=read(_socketInfo,socketCon,buffer,30);
+		buffer_length=read(_socketInfo.socketCon,buffer,30);
 
 
 		if(buffer_length==0){
@@ -181,8 +181,8 @@ int main(int argc, char const *argv[])
 	server_addr.sin_port=htons(2000);
 
 	//bind the server addr to the socket listen
-	if(bind(socketlisten,(struct sockaddr *)&server_addr,sizeof(struct sockaddr)!=0)){
-		perror("bind ip port fail");
+	if(bind(socketlisten,(struct sockaddr *)&server_addr,sizeof(struct sockaddr))!=0){
+		perror("bind ip port fail ");
 		exit(-1);
 	}else{
 		printf("ip and port bind sucess\n");
@@ -203,8 +203,8 @@ int main(int argc, char const *argv[])
 	//send the data all the time
 	while(1){
 		//judge how many thread is still alive
-		int i;
-		for(int i=0;i<thread_receive_client_count;i++){
+		int i=0;
+		for(i=0;i<thread_receive_client_count;i++){
 			if(check_thread_is_killed(Arr_Thread_Receive_Client[i])==1){
 				printf("there is a thread been killed\n");
 				thread_receive_client_count--;
@@ -225,7 +225,7 @@ int main(int argc, char const *argv[])
 			printf("no clinet connect\n");
 		}else{
 			int i;
-			for(int i=0;i<conClientCount;i++){
+			for(i=0;i<conClientCount;i++){
 				int sendMsg_len=write(arr_socket[i].socketCon,user_str,30);
 				if(sendMsg_len>0){
 					printf("send to %s:%s success\n",arr_socket[i].ipaddr,arr_socket[i].port);
@@ -234,7 +234,7 @@ int main(int argc, char const *argv[])
 				}
 			}
 		}
-		sleep(0,5);
+		sleep(0.5);
 	}
 
 	printf("wait for thread quit\n");
