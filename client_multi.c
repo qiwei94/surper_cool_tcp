@@ -164,7 +164,34 @@ int main(int argc, char const *argv[])
 	server_addr.sin_port=htons(2000);
 
 	//connect to the server 
-	int res_con=connect(socketCon,)
+	int res_con=connect(socketCon,(struct sockaddr *)(&server_addr),sizeof(struct sockaddr));
+	if(res_con!=0){
+		printf("connect fail\n");
+		exit(-1);
+	}
+
+	printf("connect success, the res is : %d\n",res_con);
+	pthread_t thread_receive;
+	pthread_create(&thread_receive,NULL,fun_thrReceiveHandler,&socketCon);
+
+	while(1){
+		char userStr[30]={'0'};
+		scanf("%s",userStr);
+        if(strcmp(userStr,"q") == 0){
+            printf("用户选择退出！\n");
+            break;
+        }
+        // 发送消息
+        //int sendMsg_len = send(socketCon, userStr, 30, 0);
+		int sendMsg_len=write(_socketCon,userStr,30);
+		if(sendMsg_len>0){
+			printf("send message success,the handler is %d:\n",_socketCon);
+		}else{
+			printf("send fail\n");
+		}
+	}
+
+	close(socketCon);
 
 	return 0;
 }
