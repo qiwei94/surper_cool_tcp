@@ -42,19 +42,8 @@ int thread_receive_client_count=0;
 
 //this is to say , many socket and many thread used together to finish the job
 
-int check_thread_is_killed(pthread_t thr){
-	int res=1;
-	int res_kill = pthread_kill(thr,0);
-	if(res_kill == 0){
-		res=0;
-	}
-	return res;
-}
 
-
-
-void *fun_one_therad_accept_and_receive(void *socketlisten){
-	printf("the pid is %d, the thread_id is %d \n", getpid(),pthread_self());
+void * fun_therad_accept_handler(void *socketlisten){
 	while(1){//while 1 means it do the accept all the time
 		//get the struct sockaddr_in size
 		int sockaddr_in_size=sizeof(struct sockaddr_in);
@@ -75,83 +64,177 @@ void *fun_one_therad_accept_and_receive(void *socketlisten){
 		so the _socketListen is the sockdet fd
 		*/
 		int socketCon=accept(_socketListen,(struct sockaddr*)(&client_addr),(socklen_t *)(&sockaddr_in_size));
-		
-		struct sockaddr_in sa;
-		int len = sizeof(sa);
-		if(!getsockname(_socketListen, (struct sockaddr *)&sa, &len))
-		{
-			printf( "LOCAL IP：%s ", inet_ntoa(sa.sin_addr));
-			printf( "LOCAL PORT：%d ", ntohs(sa.sin_port));
-		}else{
-			printf("get LOCAL IP PORT fail\n");
-		}
-
-
-
-
 		if(socketCon<0){
-			printf("thread:%d client connect fail\n",pthread_self());
-
+			printf("connect fail\n");
 		}else{
-			//open a new communication thread , and communicate with the client
-			//construct a new struct socketinfo,and init it
-			_my_socket_info socketinfo;
-			socketinfo.socketCon=socketCon;
-			socketinfo.ipaddr=inet_ntoa(client_addr.sin_addr);
-			socketinfo.port=client_addr.sin_port;
-	
-			// put it into the receive client vector
-			arr_socket[conClientCount]=socketinfo;
-			
-			conClientCount++;
-			printf("connect sucess ip: %s:%d connect socket is :,it get %d client conneted \n",inet_ntoa(client_addr.sin_addr),client_addr.sin_port,socketCon,conClientCount);
-	
-			/*
-			//create a new thread and use it to run receive data handler
-			pthread_t thread_receive=0;
-			pthread_create(&thread_receive,NULL,fun_thread_receive_handler,&socketinfo);
-			
-	
-			//add the thread to the vector
-			Arr_Thread_Receive_Client[thread_receive_client_count]=thread_receive;
-			thread_receive_client_count++;
-			printf("now the receive thread num is :%d\n", thread_receive_client_count);
-			//make the thread sleep for 0.5s
-			//sleep(10);
-			*/
-			void* socketinfo_receive=&socketinfo;
-	
-			char buffer[30];
-			int buffer_length;
-	
-			//use the input to init the socket_info
-			_my_socket_info _socketInfo=*((_my_socket_info*)socketinfo_receive);
-			while(1){
-				//buffer to be zero
-				bzero(&buffer,sizeof(buffer));
-	
-	
-				//read the buffer content from the buffer with the length of 30
-				buffer_length=read(_socketInfo.socketCon,buffer,30);
-	
-	
-				if(buffer_length==0){
-					printf("%s:%d client closed\n", _socketInfo.ipaddr,_socketInfo.port);
-					conClientCount--;
-					break;
-				}else if (buffer_length<0)
-				{
-					printf("receive client data fail \n");
-					break;
-				}
-				buffer[buffer_length]='\0';
-				printf("%s:%d saied that: %s\n", _socketInfo.ipaddr,_socketInfo.port,buffer);
-			}
-
+			printf("connect sucess ip: %s:%d\n",inet_ntoa(client_addr.sin_addr),client_addr.sin_port);
 		}
-		sleep(2);
+		printf("the connect socket is :%d\n",socketCon);
+
+		//open a new communication thread , and communicate with the client
+		//construct a new struct socketinfo,and init it
+		_my_socket_info socketinfo;
+		socketinfo.socketCon=socketCon;
+		socketinfo.ipaddr=inet_ntoa(client_addr.sin_addr);
+		socketinfo.port=client_addr.sin_port;
+
+		// put it into the receive client vector
+		arr_socket[conClientCount]=socketinfo;
+		conClientCount++;
+		printf("now get %d client conneted\n",conClientCount);
+
+		//create a new thread and use it to run receive data handler
+		pthread_t thread_receive=0;
+		pthread_create(&thread_receive,NULL,fun_thread_receive_handler,&socketinfo);
+		
+
+		//add the thread to the vector
+		Arr_Thread_Receive_Client[thread_receive_client_count]=thread_receive;
+		thread_receive_client_count++;
+		printf("now the receive thread num is :%d\n", thread_receive_client_count);
+		//make the thread sleep for 0.5s
+		//sleep(10);
+	}
+
+	char *s="exit the thread safely";
+	pthread_exit(s);
+}
+
+
+
+
+
+void *fun_thread_receive_handler(void *socketinfo){
+	char buffer[30];
+	int buffer_length;
+
+	//use the input to init the socket_info
+	_my_socket_info _socketInfo=*((_my_socket_info*)socketinfo);
+	while(1){
+		//buffer to be zero
+		bzero(&buffer,sizeof(buffer));
+
+
+		//read the buffer content from the buffer with the length of 30
+		buffer_length=read(_socketInfo.socketCon,buffer,30);
+
+
+		if(buffer_length==0){
+			printf("%s:%d client closed\n", _socketInfo.ipaddr,_socketInfo.port);
+			conClientCount--;
+			break;
+		}else if (buffer_length<0)
+		{
+			printf("receive client data fail \n");
+			break;
+		}
+		buffer[buffer_length]='\0';
+		printf("%s:%d saied that: %s\n", _socketInfo.ipaddr,_socketInfo.port,buffer);
+		//sleep(5);
+	}
+	printf("receive data thread stop\n");
+	return NULL;
+}
+
+
+int check_thread_is_killed(pthread_t thr){
+	int res=1;
+	int res_kill = pthread_kill(thr,0);
+	if(res_kill == 0){
+		res=0;
+	}
+	return res;
+}
+
+
+
+void *fun_one_therad_accept_and_receive(void *socketlisten){
+	while(1){//while 1 means it do the accept all the time
+		//get the struct sockaddr_in size
+		int sockaddr_in_size=sizeof(struct sockaddr_in);
+		//a struct to store client addr info 
+		struct sockaddr_in client_addr;
+		
+		//what means the socket listen???
+		int _socketListen=*((int *)socketlisten);
+		
+
+		/*
+		accept funciton:
+		int accept(int sockfd, void *addr, int *addrlen);
+		sockfd:the file descripter of socket
+		addr 是个指 向局部的数据结构 sockaddr_in 的指针
+		这是要求接入的信息所要去的地 方（你可以测定那个地址在那个端口呼叫你）。
+		the length is the sizeof(struct sockaddr_in)
+		so the _socketListen is the sockdet fd
+		*/
+		int socketCon=accept(_socketListen,(struct sockaddr*)(&client_addr),(socklen_t *)(&sockaddr_in_size));
+		if(socketCon<0){
+			printf("connect fail\n");
+		}else{
+			printf("connect sucess ip: %s:%d\n",inet_ntoa(client_addr.sin_addr),client_addr.sin_port);
+		}
+		printf("the connect socket is :%d\n",socketCon);
+
+		//open a new communication thread , and communicate with the client
+		//construct a new struct socketinfo,and init it
+		_my_socket_info socketinfo;
+		socketinfo.socketCon=socketCon;
+		socketinfo.ipaddr=inet_ntoa(client_addr.sin_addr);
+		socketinfo.port=client_addr.sin_port;
+
+		// put it into the receive client vector
+		arr_socket[conClientCount]=socketinfo;
+		conClientCount++;
+		printf("now get %d client conneted\n",conClientCount);
+
+		/*
+		//create a new thread and use it to run receive data handler
+		pthread_t thread_receive=0;
+		pthread_create(&thread_receive,NULL,fun_thread_receive_handler,&socketinfo);
+		
+
+		//add the thread to the vector
+		Arr_Thread_Receive_Client[thread_receive_client_count]=thread_receive;
+		thread_receive_client_count++;
+		printf("now the receive thread num is :%d\n", thread_receive_client_count);
+		//make the thread sleep for 0.5s
+		//sleep(10);
+		*/
+
+
+
+		void* socketinfo_receive=&socketinfo;
+
+		char buffer[30];
+		int buffer_length;
+
+		//use the input to init the socket_info
+		_my_socket_info _socketInfo=*((_my_socket_info*)socketinfo_receive);
+		while(1){
+			//buffer to be zero
+			bzero(&buffer,sizeof(buffer));
+
+
+			//read the buffer content from the buffer with the length of 30
+			buffer_length=read(_socketInfo.socketCon,buffer,30);
+
+
+			if(buffer_length==0){
+				printf("%s:%d client closed\n", _socketInfo.ipaddr,_socketInfo.port);
+				conClientCount--;
+				break;
+			}else if (buffer_length<0)
+			{
+				printf("receive client data fail \n");
+				break;
+			}
+			buffer[buffer_length]='\0';
+			printf("%s:%d saied that: %s\n", _socketInfo.ipaddr,_socketInfo.port,buffer);
+		}
 
 	}
+
 	char *s="exit the thread safely";
 	pthread_exit(s);
 }
@@ -213,7 +296,7 @@ int main(int argc, char const *argv[])
 	
 	pthread_t already_create[5];
 	int i=0;
-	for(i=0;i<1;i++){
+	for(i=0;i<5;i++){
 		pthread_t thread_accept=create_and_listen(2000+i);
 		printf("create the %d link\n",2000+i);
 		already_create[i]=thread_accept;
@@ -267,7 +350,7 @@ int main(int argc, char const *argv[])
 	printf("wait for thread quit\n");
 	char* message;
 	//int i=0;
-	for(i=0;i<1;i++){
+	for(i=0;i<5;i++){
 		pthread_t thread_accept=already_create[i];
 		pthread_join(thread_accept,(void *)&message);
 	}

@@ -81,12 +81,12 @@ int send_one_times(int port_num){
 	
 
 
-	while(count_send<1){
-
+	while(count_send<100){
 		char userStr[30];
 		//itoa(port_num,userStr,10);
 		sprintf(userStr, "%d", port_num);
-		//scanf("%s",userStr);
+		printf("please input:::\n");
+		scanf("%s",userStr);
 		printf("userStr is : %s\n", userStr);
         if(strcmp(userStr,"q") == 0){
             printf("用户选择退出！\n");
@@ -103,6 +103,7 @@ int send_one_times(int port_num){
 		}
 
 		count_send++;
+		//sleep(2);
 	}
 
 	close(socketCon);
@@ -113,6 +114,11 @@ int send_one_times(int port_num){
 
 int main(int argc, char const *argv[])
 {
-	send_one_times(2000);
+	//send_one_times(2000);
+	int i=0;
+	for(i=0;i<1;i++){
+		printf("%d:\n",2000+i);
+		send_one_times(2000+i);
+	}
 	return 0;
 }
