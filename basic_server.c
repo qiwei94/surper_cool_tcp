@@ -26,6 +26,9 @@ int sock_get(){
 	}
 
 	/***************************init*************************************/
+	bzero(&server_addr,sizeof(struct sockaddr_in));
+	server_addr.sin_family=AF_INET;
+	server_addr.sin_addr.sin_addr=;
 
 }
 
