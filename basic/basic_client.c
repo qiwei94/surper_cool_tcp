@@ -9,7 +9,7 @@
 #include <netinet/in.h>
 
 //#define portnumber 3333
-#define sock_total_num 10
+#define sock_total_num 1
 
 int client_get_connect(char *ip,int port_num){
 	int sockfd;
@@ -55,14 +55,38 @@ int client_get_connect(char *ip,int port_num){
 	}
 
 	buffer[nbytes]='\0';
-	printf("get handshake : %s and waiting\n",buffer);
+	printf("get handshake : %s and waiting.....\n",buffer);
 	
+
+
+
 	return sockfd;
 
 	//close(sockfd);
 	
 }
 
+
+
+int while_listen(int sockfd){
+	char buffer[1024];
+	int nbytes;
+	while(1){
+		if((nbytes=read(sockfd,buffer,1024))==-1){
+			fprintf(stderr, " read error %s\n", strerror(errno));
+			exit(-1);
+		}
+
+		buffer[nbytes]='\0';
+		printf("get res: .....\n",buffer);
+		if(buffer=="end"){
+			printf("get end and exit\n");
+			break;
+		}
+
+		sleep(2);
+	}
+}
 
 int main(int argc, char const *argv[])
 {	
@@ -82,6 +106,10 @@ int main(int argc, char const *argv[])
 		int sock_fd=client_get_connect(user_str,3333+i);
 		sock_vector[i]=sock_fd;
 	}
+	
+	while_listen(sock_vector[0]);
+
+	sleep(100);
 	for(i=0;i<sock_total_num;i++){
 		int sock_fd=sock_vector[i];
 		close(sock_fd);
