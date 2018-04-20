@@ -7,8 +7,8 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <pthread.h>
-#define total_socket_num 10
-#define total_thread_num 10
+#define total_socket_num 100
+#define total_thread_num 100
 //服务器端
 
 void *fun_thrReceiveHandler(void *socketInfo);
@@ -81,28 +81,34 @@ int main()
 
         // 可以录入用户操作选项，并进行相应操作
         char userStr[30] = {'0'};
-        printf("please input:\n");
+        char data_block[100] = "0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789";
+        printf("conClientCount is %d\n", conClientCount);
+        if(conClientCount==total_socket_num){
+            printf(" ok we got all the client connect,let us begin to fuck, give me D\n");
+            scanf("%s",userStr);
+            if(strcmp(userStr,"D") == 0){
+                printf("do it now!\n");
+                // 发送消息
+                int i;
+                for(i=0; i<conClientCount; i++){
+                    //int sendMsg_len = send(arrConSocket[i].socketCon, userStr, 30, 0);
+                    int sendMsg_len = write(arrConSocket[i].socketCon,data_block,100);
+                    if(sendMsg_len > 0){
+                        printf("向%s:%d发送成功\n",arrConSocket[i].ipaddr,arrConSocket[i].port);
+                    }else{
+                        printf("向%s:%d发送失败\n",arrConSocket[i].ipaddr,arrConSocket[i].port);
+                    }
+                }    
+            }
+
+        }
+        printf("if u want to quit ,give me q\n");
         scanf("%s",userStr);
         if(strcmp(userStr,"q") == 0){
             printf("用户选择退出！\n");
             break;
         }
         // 发送消息
-        if(conClientCount <= 0){
-            printf("没有客户端连接\n");
-        }else{
-            int i;
-            for(i=0; i<conClientCount; i++){
-                //int sendMsg_len = send(arrConSocket[i].socketCon, userStr, 30, 0);
-                int sendMsg_len = write(arrConSocket[i].socketCon,userStr,30);
-                if(sendMsg_len > 0){
-                    printf("向%s:%d发送成功\n",arrConSocket[i].ipaddr,arrConSocket[i].port);
-                }else{
-                    printf("向%s:%d发送失败\n",arrConSocket[i].ipaddr,arrConSocket[i].port);
-                }
-            }
-        }
-
         sleep(0.5);
     }
 
