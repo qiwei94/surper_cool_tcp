@@ -43,22 +43,21 @@ int main(int argc, char const *argv[])
     pthread_create(&thrReceive,NULL,fun_thrReceiveHandler,&socketCon);
 
     /* 实时发送数据 */
-    while(1){
-        //检测接受服务器数据线程是否被杀死
-        if(argc!=2){
+
+    if(argc!=2){
         fprintf(stderr, "usage %s content\n", argv[0]);
         exit(1);
         }
 
 
-        char userStr[30] ;
-        // 可以录入用户操作选项，并进行相应操作
-        strncpy(userStr,argv[1],sizeof(argv[1]));
-        sleep(10);
+    char userStr[30] ;
+    // 可以录入用户操作选项，并进行相应操作
+    strncpy(userStr,argv[1],sizeof(argv[1]));
+    printf("userStr is %s \n",userStr);
+    while(1){
+        //检测接受服务器数据线程是否被杀死
         //printf("please input :\n");
         //scanf("%s",userStr);
-        printf("userStr is %s \n",userStr);
-
         if(strcmp(userStr,"q") == 0){
             printf("用户选择退出！\n");
             break;
@@ -76,6 +75,11 @@ int main(int argc, char const *argv[])
             //printf("接受服务器数据的线程已被关闭，退出程序\n");
             //break;
         //}
+        
+        printf("waiting for this 100 seconds\n");
+        sleep(100);
+        
+        //break;
     }
     // 关闭套接字
     close(socketCon);
