@@ -7,6 +7,8 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <pthread.h>
+#define total_socket_num 10
+#define total_thread_num 10
 //服务器端
 
 void *fun_thrReceiveHandler(void *socketInfo);
@@ -79,6 +81,7 @@ int main()
 
         // 可以录入用户操作选项，并进行相应操作
         char userStr[30] = {'0'};
+        printf("please input:\n");
         scanf("%s",userStr);
         if(strcmp(userStr,"q") == 0){
             printf("用户选择退出！\n");
@@ -117,6 +120,7 @@ void *fun_thrAcceptHandler(void *socketListen){
         int sockaddr_in_size = sizeof(struct sockaddr_in);
         struct sockaddr_in client_addr;
         int _socketListen = *((int *)socketListen);
+        printf("accept blocking\n");
         int socketCon = accept(_socketListen, (struct sockaddr *)(&client_addr), (socklen_t *)(&sockaddr_in_size));
         if(socketCon < 0){
             printf("连接失败\n");
@@ -139,7 +143,7 @@ void *fun_thrAcceptHandler(void *socketListen){
         thrReceiveClientCount++;
 
         //让进程休息1秒
-        sleep(0.5);
+        //sleep(0.5);
     }
 
     char *s = "安全退出接受进程";
@@ -153,7 +157,7 @@ void *fun_thrReceiveHandler(void *socketInfo){
     while(1){
         //添加对buffer清零
         bzero(&buffer,sizeof(buffer));
-
+        printf("read blocking \n");
         buffer_length = read(_socketInfo.socketCon,buffer,30);
         if(buffer_length == 0){
             printf("%s:%d 客户端关闭\n",_socketInfo.ipaddr,_socketInfo.port);
