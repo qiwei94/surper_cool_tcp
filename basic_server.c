@@ -64,7 +64,7 @@ int sock_get(){
 		count++;
 		printf("begin listen %d times\n", count);
 		sin_size=sizeof(struct sockaddr_in);
-
+		
 		if((new_fd=accept(sockfd,(struct sockaddr*)&client_addr,&sin_size))==-1){
 			printf("connect error is %s\n\a", strerror(errno));
 			fprintf(stderr, "connect error is %s\n\a", strerror(errno));
@@ -72,7 +72,7 @@ int sock_get(){
 		}
 	
 		printf("server get connect to client: %s\n\a", inet_ntoa(client_addr.sin_addr));
-		fprintf(stderr, "server get connetion from %s\n\a", inet_ntoa(client_addr.sin_addr));
+		//fprintf(stderr, "server get connetion from %s\n\a", inet_ntoa(client_addr.sin_addr));
 	
 		if(write(new_fd,hello,strlen(hello))==-1){
 			printf("write errno is %s\n\a", strerror(errno));

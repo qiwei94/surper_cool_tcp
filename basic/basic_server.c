@@ -21,9 +21,8 @@
 #include <arpa/inet.h> //inet_nota()
 //服务器端
 
-#define port_number 3333
 
-int sock_get(){
+int sock_get(int port_num){
 	int sockfd,new_fd;
 
 	struct sockaddr_in server_addr;
@@ -41,7 +40,7 @@ int sock_get(){
 	bzero(&server_addr,sizeof(struct sockaddr_in));
 	server_addr.sin_family=AF_INET;
 	server_addr.sin_addr.s_addr=htonl(INADDR_ANY);
-	server_addr.sin_port=htons(port_number);
+	server_addr.sin_port=htons(port_num);
 
 
 	/***************************bind*************************************/
@@ -73,12 +72,13 @@ int sock_get(){
 	
 		printf("server get connect to client: %s\n\a", inet_ntoa(client_addr.sin_addr));
 		fprintf(stderr, "server get connetion from %s\n\a", inet_ntoa(client_addr.sin_addr));
-	
+		
 		if(write(new_fd,hello,strlen(hello))==-1){
 			printf("write errno is %s\n\a", strerror(errno));
 			fprintf(stderr, "write error is %s\n\a", strerror(errno));
 			exit(1);
 		}
+
 		close(new_fd);
 	}
 	close(sockfd);
@@ -90,6 +90,6 @@ int sock_get(){
 
 int main(int argc, char const *argv[])
 {
-	sock_get();
+	sock_get(3333);
 	return 0;
 }
