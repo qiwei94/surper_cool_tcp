@@ -2,7 +2,7 @@ import subprocess
 import time
 from multiprocessing import Process
 import multiprocessing
-
+import time
 
 total_num = 100
 p_list=[]
@@ -32,14 +32,16 @@ while True:
 	str = raw_input("enter your choice , quit is q:")
 	print "receive command is ",str
 
-	if str=="q":
-		for i in range(total_num):
+	if str == "q":
+		break
+	else:
+		print "i am wait to be killed"
+
+	time.sleep(2)
+
+for i in range(total_num):
 			p=p_list[i]
 			if p.is_alive():
 				print  "Process:"+ p.pid+" is running"
         		p.terminate() 
-        break
-    else:
-    	
-
 print "all process closed"

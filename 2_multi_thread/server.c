@@ -82,7 +82,7 @@ int main()
         // 可以录入用户操作选项，并进行相应操作
         char userStr[30] = {'0'};
         char data_block[100] = "0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789";
-        printf("conClientCount is %d\n", conClientCount);
+        printf("conClientCount is %d, conClientCount==total_socket_num?:%d\n", conClientCount,(conClientCount==total_socket_num));
         if(conClientCount==total_socket_num){
             printf(" ok we got all the client connect,let us begin to fuck, give me D\n");
             scanf("%s",userStr);
@@ -109,7 +109,7 @@ int main()
             break;
         }
         // 发送消息
-        
+        sleep(1);
     }
 
     // 等待子进程退出
@@ -149,7 +149,7 @@ void *fun_thrAcceptHandler(void *socketListen){
         thrReceiveClientCount++;
 
         //让进程休息1秒
-        //sleep(0.5);
+        sleep(2);
     }
 
     char *s = "安全退出接受进程";
@@ -176,7 +176,7 @@ void *fun_thrReceiveHandler(void *socketInfo){
         buffer[buffer_length] = '\0';
         printf("%s:%d 说：%s\n",_socketInfo.ipaddr,_socketInfo.port,buffer);
 
-        sleep(0.2);
+        sleep(2);
     }
     printf("接受数据线程结束了\n");
     return NULL;
