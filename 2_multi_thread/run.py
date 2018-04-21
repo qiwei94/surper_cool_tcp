@@ -28,6 +28,18 @@ for p in multiprocessing.active_children():
     print("child p.name: " + p.name + "\tp.id: " + str(p.pid))
 
 
-for i in range(total_num):
-	p=p_list[i]
-	p.join()
+while True:
+	str = raw_input("enter your choice , quit is q:")
+	print "receive command is ",str
+
+	if str=="q":
+		for i in range(total_num):
+			p=p_list[i]
+			if p.is_alive():
+				print  "Process:"+ p.pid+" is running"
+        		p.terminate() 
+        break
+    else:
+    	
+
+print "all process closed"
