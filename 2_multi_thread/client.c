@@ -54,6 +54,7 @@ int main(int argc, char const *argv[])
     // 可以录入用户操作选项，并进行相应操作
     strncpy(userStr,argv[1],sizeof(argv[1]));
     printf("userStr is %s \n",userStr);
+    /*
     while(1){
         //检测接受服务器数据线程是否被杀死
         //printf("please input :\n");
@@ -81,17 +82,21 @@ int main(int argc, char const *argv[])
         
         //break;
     }
+    */
     // 关闭套接字
+    printf("waiting for this 20 seconds\n");
+    sleep(20);
     close(socketCon);
     return 0;
 }
 
 void *fun_thrReceiveHandler(void *socketCon){
+    /*
     while(1){
-        char buffer[30];
+        char buffer[100];
         int _socketCon = *((int *)socketCon);
         //int buffer_length = recv(_socketCon,buffer,30,0);
-        int buffer_length = read(_socketCon,buffer,30);
+        int buffer_length = read(_socketCon,buffer,100);
         if(buffer_length == 0){
             printf("服务器端异常关闭\n");
             exit(-1);
@@ -102,6 +107,25 @@ void *fun_thrReceiveHandler(void *socketCon){
         buffer[buffer_length] = '\0';
         printf("服务器说：%s\n",buffer);
     }
+
+    */
+    
+    char buffer[100];
+    int _socketCon = *((int *)socketCon);
+    //int buffer_length = recv(_socketCon,buffer,30,0);
+    int buffer_length = read(_socketCon,buffer,100);
+    if(buffer_length == 0){
+        printf("服务器端异常关闭\n");
+        exit(-1);
+    }else if(buffer_length < 0){
+        printf("接受客户端数据失败\n");
+        //break;
+    }
+    buffer[buffer_length] = '\0';
+    printf("服务器说：%s\n",buffer);
+    
+
+
     printf("退出接受服务器数据线程\n");
     return NULL;
 }

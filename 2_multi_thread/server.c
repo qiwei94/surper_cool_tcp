@@ -23,11 +23,11 @@ typedef struct MySocketInfo{
 }_MySocketInfo;
 
 // 客户端数组
-struct MySocketInfo arrConSocket[10];
+struct MySocketInfo arrConSocket[100];
 int conClientCount = 0;
 
 // 接受客户端线程列表
-pthread_t arrThrReceiveClient[10];
+pthread_t arrThrReceiveClient[100];
 int thrReceiveClientCount = 0;
 
 int main()
@@ -82,32 +82,52 @@ int main()
         // 可以录入用户操作选项，并进行相应操作
         char userStr[30] = {'0'};
         char data_block[100] = "0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789";
-        printf("conClientCount is %d, conClientCount==total_socket_num?:%d\n", conClientCount,(conClientCount==total_socket_num));
-        if(conClientCount==total_socket_num){
-            printf(" ok we got all the client connect,let us begin to fuck, give me D\n");
-            scanf("%s",userStr);
-            if(strcmp(userStr,"D") == 0){
-                printf("do it now!\n");
-                // 发送消息
-                int i;
-                for(i=0; i<conClientCount; i++){
-                    //int sendMsg_len = send(arrConSocket[i].socketCon, userStr, 30, 0);
-                    int sendMsg_len = write(arrConSocket[i].socketCon,data_block,100);
-                    if(sendMsg_len > 0){
-                        printf("向%s:%d发送成功\n",arrConSocket[i].ipaddr,arrConSocket[i].port);
-                    }else{
-                        printf("向%s:%d发送失败\n",arrConSocket[i].ipaddr,arrConSocket[i].port);
-                    }
-                }    
-            }
+        //printf("conClientCount is %d, conClientCount==total_socket_num?:%d\n", conClientCount,(conClientCount==total_socket_num));
+        
 
+        /*
+        printf("if u want to send ,give me D\n");
+        scanf("%s",userStr);
+        if(strcmp(userStr,"D") == 0){
+            printf("do it now!\n");
+            // 发送消息
+            int i;
+            for(i=0; i<conClientCount; i++){
+                //int sendMsg_len = send(arrConSocket[i].socketCon, userStr, 30, 0);
+                int sendMsg_len = write(arrConSocket[i].socketCon,data_block,100);
+                if(sendMsg_len > 0){
+                    printf("向%s:%d发送成功\n",arrConSocket[i].ipaddr,arrConSocket[i].port);
+                }else{
+                    printf("向%s:%d发送失败\n",arrConSocket[i].ipaddr,arrConSocket[i].port);
+                }
+            }    
         }
+
         printf("if u want to quit ,give me q\n");
         scanf("%s",userStr);
         if(strcmp(userStr,"q") == 0){
             printf("用户选择退出！\n");
             break;
         }
+        */
+        if(conClientCount==total_socket_num){
+            printf("GET TO THE TOTAL NUMBER,AND BEGIN TO SEND:\n");
+            int i;
+            for(i=0; i<conClientCount; i++){
+                //int sendMsg_len = send(arrConSocket[i].socketCon, userStr, 30, 0);
+                int sendMsg_len = write(arrConSocket[i].socketCon,data_block,100);
+                if(sendMsg_len > 0){
+                    printf("向%s:%d发送成功\n",arrConSocket[i].ipaddr,arrConSocket[i].port);
+                }else{
+                    printf("向%s:%d发送失败\n",arrConSocket[i].ipaddr,arrConSocket[i].port);
+                }
+            }
+        printf("WE FINISH IT !\n");
+            break;
+
+        }
+
+
         // 发送消息
         sleep(1);
     }
@@ -117,7 +137,7 @@ int main()
     char *message;
     pthread_join(thrAccept,(void *)&message);
     printf("%s\n",message);
-
+    printf("finish all  \n");
     return 0;
 }
 
@@ -126,7 +146,7 @@ void *fun_thrAcceptHandler(void *socketListen){
         int sockaddr_in_size = sizeof(struct sockaddr_in);
         struct sockaddr_in client_addr;
         int _socketListen = *((int *)socketListen);
-        printf("accept blocking\n");
+        //printf("accept blocking\n");
         int socketCon = accept(_socketListen, (struct sockaddr *)(&client_addr), (socklen_t *)(&sockaddr_in_size));
         if(socketCon < 0){
             printf("连接失败\n");
@@ -147,9 +167,12 @@ void *fun_thrAcceptHandler(void *socketListen){
         pthread_create(&thrReceive,NULL,fun_thrReceiveHandler,&socketInfo);
         arrThrReceiveClient[thrReceiveClientCount] = thrReceive;
         thrReceiveClientCount++;
-
+        if(thrReceiveClientCount==total_thread_num){
+            printf("IT GET TO THE HIGHEST NUMBER OF total_thread_num\n");
+            break;
+        }
         //让进程休息1秒
-        sleep(2);
+        sleep(0.5);
     }
 
     char *s = "安全退出接受进程";
@@ -163,7 +186,7 @@ void *fun_thrReceiveHandler(void *socketInfo){
     while(1){
         //添加对buffer清零
         bzero(&buffer,sizeof(buffer));
-        printf("read blocking \n");
+        //printf("read blocking \n");
         buffer_length = read(_socketInfo.socketCon,buffer,30);
         if(buffer_length == 0){
             printf("%s:%d 客户端关闭\n",_socketInfo.ipaddr,_socketInfo.port);

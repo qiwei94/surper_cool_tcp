@@ -37,7 +37,7 @@ while True:
 	else:
 		print "i am wait to be killed"
 
-	time.sleep(2)
+	time.sleep(0.2)
 
 for i in range(total_num):
 			p=p_list[i]
