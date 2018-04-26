@@ -7,8 +7,8 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <pthread.h>
-#define total_socket_num 100
-#define total_thread_num 100
+#define total_socket_num 2000
+#define total_thread_num 2000
 //服务器端
 
 void *fun_thrReceiveHandler(void *socketInfo);
@@ -23,11 +23,11 @@ typedef struct MySocketInfo{
 }_MySocketInfo;
 
 // 客户端数组
-struct MySocketInfo arrConSocket[100];
+struct MySocketInfo arrConSocket[total_socket_num];
 int conClientCount = 0;
 
 // 接受客户端线程列表
-pthread_t arrThrReceiveClient[100];
+pthread_t arrThrReceiveClient[total_thread_num];
 int thrReceiveClientCount = 0;
 
 int main()

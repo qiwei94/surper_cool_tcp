@@ -4,7 +4,7 @@ from multiprocessing import Process
 import multiprocessing
 import time
 
-total_num = 100
+total_num = 2000
 p_list=[]
 
 def task(i):

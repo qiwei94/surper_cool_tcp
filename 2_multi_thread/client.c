@@ -7,6 +7,9 @@
 #include <unistd.h>
 #include <pthread.h>
 
+#define the_server_data_length 100
+
+
 typedef struct MySocketInfo{
     int socketCon;
     unsigned long ipaddr;
@@ -110,10 +113,10 @@ void *fun_thrReceiveHandler(void *socketCon){
 
     */
     
-    char buffer[100];
+    char buffer[the_server_data_length];
     int _socketCon = *((int *)socketCon);
     //int buffer_length = recv(_socketCon,buffer,30,0);
-    int buffer_length = read(_socketCon,buffer,100);
+    int buffer_length = read(_socketCon,buffer,the_server_data_length);
     if(buffer_length == 0){
         printf("服务器端异常关闭\n");
         exit(-1);
