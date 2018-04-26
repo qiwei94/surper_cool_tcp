@@ -115,6 +115,7 @@ int main()
             int i;
             for(i=0; i<conClientCount; i++){
                 //int sendMsg_len = send(arrConSocket[i].socketCon, userStr, 30, 0);
+                printf("NUMBER:%d\n finish",i);
                 int sendMsg_len = write(arrConSocket[i].socketCon,data_block,100);
                 if(sendMsg_len > 0){
                     printf("向%s:%d发送成功\n",arrConSocket[i].ipaddr,arrConSocket[i].port);

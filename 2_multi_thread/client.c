@@ -125,7 +125,6 @@ void *fun_thrReceiveHandler(void *socketCon){
     printf("服务器说：%s\n",buffer);
     
 
-
     printf("退出接受服务器数据线程\n");
     return NULL;
 }
