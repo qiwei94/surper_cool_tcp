@@ -7,8 +7,9 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <pthread.h>
-#define total_socket_num 2000
-#define total_thread_num 2000
+#define total_socket_num 1900
+#define total_thread_num 1900
+#define data_length 1000
 //服务器端
 
 void *fun_thrReceiveHandler(void *socketInfo);
@@ -81,7 +82,9 @@ int main()
 
         // 可以录入用户操作选项，并进行相应操作
         char userStr[30] = {'0'};
-        char data_block[100] = "0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789";
+        char data_block[data_length];
+        memset(data_block, '0', sizeof(char)*data_length);
+        
         //printf("conClientCount is %d, conClientCount==total_socket_num?:%d\n", conClientCount,(conClientCount==total_socket_num));
         
 
@@ -111,12 +114,13 @@ int main()
         }
         */
         if(conClientCount==total_socket_num){
-            printf("GET TO THE TOTAL NUMBER,AND BEGIN TO SEND:\n");
+            printf("GET TO THE TOTAL NUMBER,AND BEGIN TO SEND,wait for 10 seconds:\n");
             int i;
+            sleep(10);
             for(i=0; i<conClientCount; i++){
                 //int sendMsg_len = send(arrConSocket[i].socketCon, userStr, 30, 0);
                 printf("NUMBER:%d\n finish",i);
-                int sendMsg_len = write(arrConSocket[i].socketCon,data_block,100);
+                int sendMsg_len = write(arrConSocket[i].socketCon,data_block,data_length);
                 if(sendMsg_len > 0){
                     printf("向%s:%d发送成功\n",arrConSocket[i].ipaddr,arrConSocket[i].port);
                 }else{

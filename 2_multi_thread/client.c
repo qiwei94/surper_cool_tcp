@@ -7,8 +7,8 @@
 #include <unistd.h>
 #include <pthread.h>
 
-#define the_server_data_length 100
-
+#define the_server_data_length 1000
+#define live_time 600
 
 typedef struct MySocketInfo{
     int socketCon;
@@ -87,8 +87,8 @@ int main(int argc, char const *argv[])
     }
     */
     // 关闭套接字
-    printf("waiting for this 20 seconds\n");
-    sleep(20);
+    printf("waiting for this %d seconds\n",live_time);
+    sleep(live_time);
     close(socketCon);
     return 0;
 }
@@ -125,8 +125,8 @@ void *fun_thrReceiveHandler(void *socketCon){
         //break;
     }
     buffer[buffer_length] = '\0';
-    printf("服务器说：%s\n",buffer);
-    
+    //printf("服务器说：%s\n",buffer);
+    printf("server give %d bytes\n",buffer_length);
 
     printf("退出接受服务器数据线程\n");
     return NULL;

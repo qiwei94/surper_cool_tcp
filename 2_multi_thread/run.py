@@ -4,7 +4,7 @@ from multiprocessing import Process
 import multiprocessing
 import time
 
-total_num = 2000
+total_num = 1900
 p_list=[]
 
 def task(i):
@@ -15,11 +15,13 @@ for i in range(total_num):
 	name="p_"+str(i)
 	p = Process(target=task, args=(i,),name=name)
 	p_list.append(p)
+	#time.sleep(0.05)
 
 
 for i in range(total_num):
 	p=p_list[i]
 	p.start()
+	time.sleep(0.05)
 
 print "The number of CPU is:" + str(multiprocessing.cpu_count())
 
@@ -37,7 +39,7 @@ while True:
 	else:
 		print "i am wait to be killed"
 
-	time.sleep(0.2)
+	time.sleep(1)
 
 for i in range(total_num):
 			p=p_list[i]
