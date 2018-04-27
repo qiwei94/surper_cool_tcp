@@ -7,8 +7,8 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <pthread.h>
-#define total_socket_num 1900
-#define total_thread_num 1900
+#define total_socket_num 2500
+#define total_thread_num 2500
 #define data_length 1000
 //服务器端
 
