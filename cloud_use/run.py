@@ -4,11 +4,11 @@ from multiprocessing import Process
 import multiprocessing
 import time
 
-total_num = 10000
+total_num = 13000
 p_list=[]
 
 def task(i):
-	output=subprocess.Popen("./client.o "+str(i),shell=True)
+	output=subprocess.Popen("./client.o "+str(i),shell=True,close_fds=True)
 
 for i in range(total_num):
 	print i," begin run"
