@@ -8,8 +8,8 @@
 #include <pthread.h>
 
 #define the_server_data_length 1000
-#define live_time 600
-#define client_thread_num 13000
+#define live_time 1000
+#define client_thread_num 1000
 
 typedef struct MySocketInfo{
     int socketCon;
@@ -20,7 +20,7 @@ typedef struct MySocketInfo{
 void *fun_thrReceiveHandler(void *socketCon);
 int checkThrIsKill(pthread_t thr);
 
-void *client_thread(){
+void *client_thread(int seq_num){
     int socketCon = socket(AF_INET, SOCK_STREAM, 0);
     if(socketCon < 0){
         printf("创建TCP连接套接字失败\n");
@@ -39,6 +39,18 @@ void *client_thread(){
         exit(-1);
     }
     printf("连接成功,连接结果为：%d\n",res_con);
+    
+    char userStr[30] ;
+
+    sprintf(userStr, " %d" , seq_num);
+
+    printf("userStr is %s\n",userStr);
+    int sendMsg_len = write(socketCon,userStr,30);
+       if(sendMsg_len > 0){
+           printf("发送成功,服务端套接字句柄:%d\n",socketCon);
+       }else{
+           printf("发送失败\n");
+       }
     //开启新的实时接受数据线程
     pthread_t thrReceive;
     pthread_create(&thrReceive,NULL,fun_thrReceiveHandler,&socketCon);
@@ -55,26 +67,29 @@ void *client_thread(){
 int main(int argc, char const *argv[])
 {
     printf("开始socket\n");
-/*
-    if(argc!=2){
-      fprintf(stderr, "usage %s content\n", argv[0]);
-      exit(1);
-      }
+
+     if(argc!=2){
+        fprintf(stderr, "usage %s content\n", argv[0]);
+        exit(1);
+        }
+
 
     char userStr[30] ;
     // 可以录入用户操作选项，并进行相应操作
     strncpy(userStr,argv[1],sizeof(argv[1]));
-    printf("userStr is %s \n",userStr);
-*/
+    //printf("userStr is %s \n",userStr);
+
+    int seq_num=atoi(userStr);
 
     int i=0;
     for(i=0;i<client_thread_num;i++){
-        printf("%d begin\n", i);
+        printf("%d sub client thread process begin\n", (seq_num+i));
         pthread_t client_sock;
-        pthread_create(&client_sock,NULL,client_thread,NULL);
-        usleep(5000);
+        pthread_create(&client_sock,NULL,client_thread,(seq_num+i));
+        usleep(10000);
     }
     printf("all connect and begin to listen from server\n");
+    
     sleep(live_time);
     printf("yes finish all client thread\n");
     return 0;

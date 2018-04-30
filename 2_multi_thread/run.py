@@ -4,24 +4,25 @@ from multiprocessing import Process
 import multiprocessing
 import time
 
-total_num = 10000
+total_num = 20
 p_list=[]
 
 def task(i):
-	output=subprocess.Popen("./client.o "+str(i),shell=True)
+	output=subprocess.Popen("./mc.o "+str(i*1000),shell=True,close_fds=True)
 
 for i in range(total_num):
-	print i," begin run"
 	name="p_"+str(i)
 	p = Process(target=task, args=(i,),name=name)
 	p_list.append(p)
-	#time.sleep(0.05)
+	time.sleep(0.5)
+	print i," fork success"
 
 
 for i in range(total_num):
+	print i," begin:"
 	p=p_list[i]
 	p.start()
-	time.sleep(0.01)
+	time.sleep(15)
 
 print "The number of CPU is:" + str(multiprocessing.cpu_count())
 
